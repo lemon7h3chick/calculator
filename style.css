@@ -1,0 +1,13 @@
+:root {
+  --bg-primary: #0d1512;
+  --bg-secondary: #111c18;
+
+  --light-text: #c0c396;
+  --dark-text: #111c18;
+  --color-text: #d7d75c;
+
+  --bg-button: #c0c396;
+
+  --border-primary: #519374;
+  --border-secondary: #c0c396;
+}
