@@ -26,6 +26,7 @@ function processEvent(event) {
 
   switch (target.id) {
     case 'equal':
+      calculate();
       break;
   }
 }
@@ -37,14 +38,16 @@ function inputNumber(target) {
     result.textContent += target.textContent;
   }
 
+  if (state.type.at(-1) === 'equal') {
+    input.textContent = '';
+  }
+
   result.scrollLeft = result.scrollWidth;
 }
 
 function addNumber() {
-  if (!!result.textContent) {
-    state.value.push(result.textContent);
-    state.type.push('number');
-  }
+  state.value.push(result.textContent);
+  state.type.push('number');
 }
 
 function inputOperator(target) {
@@ -52,23 +55,67 @@ function inputOperator(target) {
     return;
   }
 
-  addNumber();
-
-  if (!input.textContent) {
+  if (state.type.at(-1) === 'equal') {
     input.textContent = `${result.textContent} ${target.textContent}`;
-  } else if (state.type.at(-1) === 'operator') {
+    result.textContent = '';
+
+    state.value.push(target.textContent);
+    state.type.push('operator');
+    return;
+  }
+
+  if (result.textContent) {
+    if (!input.textContent) {
+      input.textContent = result.textContent;
+    } else {
+      input.textContent += ` ${result.textContent}`;
+    }
+
+    addNumber();
+    result.textContent = '';
+  }
+
+  if (state.type.at(-1) === 'operator') {
     input.textContent = input.textContent.slice(0, -1) + target.textContent;
     removeValueType();
   } else {
-    input.textContent += ` ${result.textContent} ${target.textContent}`;
+    input.textContent += ` ${target.textContent}`;
   }
 
-  result.textContent = '';
   state.value.push(target.textContent);
   state.type.push('operator');
 }
-
 function removeValueType() {
   state.value.pop();
   state.type.pop();
+}
+
+function calculate() {
+  if (!input.textContent) {
+    return;
+  }
+
+  if (state.type.at(-1) === 'equal') {
+    input.textContent = result.textContent;
+    return;
+  }
+
+  if (result.textContent) {
+    addNumber();
+    input.textContent = `${input.textContent} ${result.textContent}`;
+  }
+
+  if (state.type.at(-1) === 'operator') {
+    input.textContent = input.textContent.slice(0, -2);
+    removeValueType();
+  }
+
+  result.textContent = eval(
+    input.textContent.replaceAll('×', '*').replaceAll('÷', '/'),
+  );
+
+  state.value.length = 0;
+  state.type.length = 0;
+  state.value.push(result.textContent);
+  state.type.push('equal');
 }
